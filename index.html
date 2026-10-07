@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Computer Lab Reservations</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Institute of Computing home">
+      <span class="brand-mark" aria-hidden="true">IC</span>
+      <span>Institute of Computing</span>
+    </a>
+    <span class="topbar-label">FACULTY PORTAL</span>
+  </header>
+
+  <main class="page">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">ROOM SCHEDULING</p>
+      <h1 id="page-title">Computer lab reservations</h1>
+      <p class="intro-copy">Find a lab for your class and reserve a time. Your booking will be checked against existing reservations.</p>
+    </section>
+
+    <section class="lab-grid" aria-label="Available computer labs">
+      <article class="lab-card">
+        <span class="lab-icon" aria-hidden="true">01</span>
+        <div><h2>Comlab 1</h2><p>40 seats</p></div>
+      </article>
+      <article class="lab-card">
+        <span class="lab-icon" aria-hidden="true">02</span>
+        <div><h2>Comlab 2</h2><p>30 seats</p></div>
+      </article>
+      <article class="lab-card">
+        <span class="lab-icon lab-icon-aes" aria-hidden="true">AE</span>
+        <div><h2>AES</h2><p>25 seats</p></div>
+      </article>
+    </section>
+
+    <div class="content-grid">
+      <section class="panel booking-panel" aria-labelledby="booking-title">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">NEW RESERVATION</p>
+            <h2 id="booking-title">Book a computer lab</h2>
+          </div>
+          <span class="step-badge" aria-hidden="true">01</span>
+        </div>
+
+        <form id="booking-form">
+          <div class="field">
+            <label for="teacher">Teacher name</label>
+            <input id="teacher" name="teacher" type="text" placeholder="e.g. Alex Reyes" maxlength="80" autocomplete="name" required>
+          </div>
+
+          <div class="field">
+            <label for="class-name">Class or subject</label>
+            <input id="class-name" name="className" type="text" placeholder="e.g. BSCS 2A · Programming" maxlength="100" required>
+          </div>
+
+          <div class="field">
+            <label for="lab">Computer lab</label>
+            <select id="lab" name="lab" required>
+              <option value="" disabled selected>Select a lab</option>
+              <option value="Comlab 1">Comlab 1 · 40 seats</option>
+              <option value="Comlab 2">Comlab 2 · 30 seats</option>
+              <option value="AES">AES · 25 seats</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="date">Date</label>
+            <input id="date" name="date" type="date" required>
+          </div>
+
+          <div class="time-fields">
+            <div class="field">
+              <label for="start-time">Start time</label>
+              <input id="start-time" name="startTime" type="time" required>
+            </div>
+            <div class="field">
+              <label for="end-time">End time</label>
+              <input id="end-time" name="endTime" type="time" required>
+            </div>
+          </div>
+
+          <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
+          <button class="primary-button" type="submit">
+            Reserve this lab
+            <span aria-hidden="true">→</span>
+          </button>
+          <p class="form-note">A lab can only have one class booked at a time.</p>
+        </form>
+      </section>
+
+      <section class="panel reservations-panel" aria-labelledby="reservations-title">
+        <div class="panel-heading reservations-heading">
+          <div>
+            <p class="eyebrow">SCHEDULE</p>
+            <h2 id="reservations-title">Reservations</h2>
+          </div>
+          <span id="reservation-count" class="count-badge">0 bookings</span>
+        </div>
+        <div id="booking-list" class="booking-list" aria-live="polite"></div>
+      </section>
+    </div>
+    <p class="page-footnote">Reservations are saved in this browser for this prototype.</p>
+  </main>
+</body>
+</html>
