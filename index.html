@@ -39,6 +39,29 @@
       </article>
     </section>
 
+    <section class="dashboard" aria-label="Reservation totals by status">
+      <article class="dashboard-card dashboard-total">
+        <span class="dashboard-label">TOTAL RESERVATIONS</span>
+        <strong id="count-total">0</strong>
+      </article>
+      <article class="dashboard-card">
+        <span class="dashboard-label">PENDING</span>
+        <strong id="count-pending">0</strong>
+      </article>
+      <article class="dashboard-card">
+        <span class="dashboard-label">APPROVED</span>
+        <strong id="count-approved">0</strong>
+      </article>
+      <article class="dashboard-card">
+        <span class="dashboard-label">REJECTED</span>
+        <strong id="count-rejected">0</strong>
+      </article>
+      <article class="dashboard-card">
+        <span class="dashboard-label">CANCELLED</span>
+        <strong id="count-cancelled">0</strong>
+      </article>
+    </section>
+
     <div class="content-grid">
       <section class="panel booking-panel" aria-labelledby="booking-title">
         <div class="panel-heading">
@@ -53,11 +76,6 @@
           <div class="field">
             <label for="teacher">Teacher name</label>
             <input id="teacher" name="teacher" type="text" placeholder="e.g. Alex Reyes" maxlength="80" autocomplete="name" required>
-          </div>
-
-          <div class="field">
-            <label for="class-name">Class or subject</label>
-            <input id="class-name" name="className" type="text" placeholder="e.g. BSCS 2A · Programming" maxlength="100" required>
           </div>
 
           <div class="field">
@@ -86,6 +104,17 @@
             </div>
           </div>
 
+          <div class="field">
+            <label for="purpose">Purpose</label>
+            <textarea id="purpose" name="purpose" rows="3" placeholder="Describe the class or activity" maxlength="200" required></textarea>
+          </div>
+
+          <div class="field">
+            <label for="student-count">Number of students</label>
+            <input id="student-count" name="studentCount" type="number" min="1" step="1" placeholder="e.g. 28" required>
+            <span id="capacity-note" class="field-hint">Select a lab to see its seat capacity.</span>
+          </div>
+
           <div id="form-message" class="form-message" role="status" aria-live="polite"></div>
           <button class="primary-button" type="submit">
             Reserve this lab
@@ -98,14 +127,68 @@
       <section class="panel reservations-panel" aria-labelledby="reservations-title">
         <div class="panel-heading reservations-heading">
           <div>
-            <p class="eyebrow">SCHEDULE</p>
-            <h2 id="reservations-title">Reservations</h2>
+            <p class="eyebrow">BOOKING MANAGEMENT</p>
+            <h2 id="reservations-title">Reservation records</h2>
           </div>
-          <span id="reservation-count" class="count-badge">0 bookings</span>
+          <span id="reservation-count" class="count-badge">0 reservations</span>
         </div>
+        <form id="filter-form" class="filter-grid">
+          <div class="field filter-search">
+            <label for="filter-teacher">Teacher name</label>
+            <input id="filter-teacher" type="search" placeholder="Search teachers">
+          </div>
+          <div class="field">
+            <label for="filter-lab">Lab</label>
+            <select id="filter-lab">
+              <option value="">All labs</option>
+              <option value="Comlab 1">Comlab 1</option>
+              <option value="Comlab 2">Comlab 2</option>
+              <option value="AES">AES</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-date">Date</label>
+            <input id="filter-date" type="date">
+          </div>
+          <div class="field">
+            <label for="filter-status">Status</label>
+            <select id="filter-status">
+              <option value="">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+        </form>
         <div id="booking-list" class="booking-list" aria-live="polite"></div>
       </section>
     </div>
+
+    <section class="panel schedule-panel" aria-labelledby="schedule-title">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">DAILY VIEW</p>
+          <h2 id="schedule-title">Lab schedule</h2>
+        </div>
+        <span class="schedule-note">Pending and approved reservations</span>
+      </div>
+      <div class="schedule-filters">
+        <div class="field">
+          <label for="schedule-lab">Computer lab</label>
+          <select id="schedule-lab">
+            <option value="Comlab 1">Comlab 1</option>
+            <option value="Comlab 2">Comlab 2</option>
+            <option value="AES">AES</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="schedule-date">Date</label>
+          <input id="schedule-date" type="date">
+        </div>
+      </div>
+      <div id="schedule-list" class="schedule-list" aria-live="polite"></div>
+    </section>
     <p class="page-footnote">Reservations are saved in this browser for this prototype.</p>
   </main>
 </body>

@@ -147,9 +147,44 @@ h1 {
   font-size: 12px;
 }
 
+.dashboard {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dashboard-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 82px;
+  padding: 15px 17px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: #fff;
+}
+
+.dashboard-label {
+  color: #8590a2;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .8px;
+}
+
+.dashboard-card strong {
+  color: #344054;
+  font-family: 'Manrope', sans-serif;
+  font-size: 23px;
+  line-height: 1;
+}
+
+.dashboard-total { background: #f0f3ff; border-color: #e3e9ff; }
+.dashboard-total strong { color: var(--blue); }
+
 .content-grid {
   display: grid;
-  grid-template-columns: minmax(300px, .9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(300px, .78fr) minmax(0, 1.22fr);
   align-items: start;
   gap: 20px;
 }
@@ -213,7 +248,7 @@ label {
   font-weight: 600;
 }
 
-input, select {
+input, select, textarea {
   width: 100%;
   min-height: 43px;
   padding: 0 12px;
@@ -227,8 +262,10 @@ input, select {
   transition: border-color .15s, box-shadow .15s;
 }
 
+textarea { min-height: 78px; padding: 11px 12px; resize: vertical; }
 input::placeholder { color: #a0a9b8; }
-input:focus, select:focus {
+textarea::placeholder { color: #a0a9b8; }
+input:focus, select:focus, textarea:focus {
   border-color: #7990e7;
   box-shadow: 0 0 0 3px rgba(52, 89, 209, .1);
 }
@@ -237,6 +274,13 @@ input:focus, select:focus {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+}
+
+.field-hint {
+  display: block;
+  margin: 6px 1px 0;
+  color: #929bad;
+  font-size: 11px;
 }
 
 .form-message {
@@ -285,6 +329,17 @@ input:focus, select:focus {
   display: grid;
   gap: 10px;
 }
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: minmax(150px, 1.5fr) repeat(3, minmax(100px, 1fr));
+  gap: 10px;
+  margin-bottom: 17px;
+}
+
+.filter-grid .field { margin-bottom: 0; }
+.filter-grid label { font-size: 11px; }
+.filter-grid input, .filter-grid select { min-height: 39px; padding: 0 9px; font-size: 12px; }
 
 .empty-state {
   display: grid;
@@ -354,23 +409,96 @@ input:focus, select:focus {
   font-size: 11px;
 }
 
-.booking-class {
-  overflow: hidden;
-  margin: 0 0 5px;
+.booking-details {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.booking-detail {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr);
+  gap: 8px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.booking-detail dt { color: #8994a5; }
+.booking-detail dd {
+  overflow-wrap: anywhere;
+  margin: 0;
   color: #465368;
-  font-size: 12px;
-  text-overflow: ellipsis;
+}
+
+.booking-detail:first-child dd {
+  color: #3459d1;
+  font-weight: 600;
+}
+
+.booking-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 7px;
+  min-width: 76px;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 23px;
+  padding: 0 8px;
+  border-radius: 20px;
+  color: #18724f;
+  background: #eaf8f1;
+  font-size: 10px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.booking-meta {
-  margin: 0;
-  color: #8994a5;
+.status-pending { color: #92610b; background: #fff5dc; }
+.status-approved { color: #18724f; background: #eaf8f1; }
+.status-rejected { color: #a83232; background: #fff1f0; }
+.status-cancelled { color: #667085; background: #f0f2f5; }
+
+.action-button {
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
   font-size: 11px;
+  font-weight: 600;
+}
+
+.approve-button { color: #18724f; background: #eaf8f1; }
+.approve-button:hover { background: #d9f1e5; }
+.reject-button { color: #a83232; background: #fff1f0; }
+.reject-button:hover { background: #ffe4e1; }
+
+.rejection-form {
+  display: flex;
+  grid-column: 2 / 4;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 9px;
+  padding-top: 10px;
+  border-top: 1px solid #edf0f5;
+}
+
+.rejection-form label {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+.rejection-form textarea {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
 }
 
 .cancel-button {
-  align-self: center;
   padding: 6px 7px;
   border: 0;
   border-radius: 6px;
@@ -384,11 +512,35 @@ input:focus, select:focus {
 .cancel-button:hover { color: #b23b3b; background: #fff2f1; }
 .page-footnote { margin: 17px 2px 0; color: #9aa3b1; font-size: 11px; }
 
+.schedule-panel { margin-top: 20px; padding: 25px 26px; }
+.schedule-note { color: #8490a2; font-size: 11px; }
+.schedule-filters { display: grid; grid-template-columns: repeat(2, minmax(170px, 220px)); gap: 12px; }
+.schedule-filters .field { margin-bottom: 15px; }
+.schedule-list { display: grid; gap: 8px; }
+
+.schedule-item {
+  display: grid;
+  grid-template-columns: minmax(145px, .7fr) minmax(0, 1.5fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 14px;
+  border: 1px solid #edf0f5;
+  border-radius: 9px;
+}
+
+.schedule-time { color: #344054; font-size: 12px; white-space: nowrap; }
+.schedule-item-details { display: grid; gap: 4px; min-width: 0; }
+.schedule-item-details strong { overflow-wrap: anywhere; color: #465368; font-size: 12px; }
+.schedule-item-details span { overflow-wrap: anywhere; color: #8994a5; font-size: 10px; }
+.compact-empty-state { min-height: 90px; }
+
 @media (max-width: 760px) {
   .page { padding-top: 40px; }
   .content-grid { grid-template-columns: 1fr; }
   .reservations-panel { min-height: 0; }
   .empty-state { min-height: 220px; }
+  .dashboard { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .filter-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 540px) {
@@ -399,4 +551,11 @@ input:focus, select:focus {
   .lab-card { min-height: 68px; padding: 12px 15px; }
   .booking-panel, .reservations-panel { padding: 21px 18px; }
   .panel-heading h2 { font-size: 17px; }
+  .dashboard { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .dashboard-card { min-height: 72px; padding: 12px; }
+  .filter-grid { grid-template-columns: 1fr; }
+  .schedule-panel { padding: 21px 18px; }
+  .schedule-filters { grid-template-columns: 1fr; gap: 0; }
+  .schedule-item { grid-template-columns: 1fr auto; gap: 8px; }
+  .schedule-time { grid-column: 1 / -1; }
 }
