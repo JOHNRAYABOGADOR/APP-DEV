@@ -70,6 +70,25 @@ function loadBookings() {
 let bookings = loadBookings();
 let rejectionFormFor = null;
 
+function createElement(tag, className = '', text) {
+  const element = document.createElement(tag);
+  if (className) element.className = className;
+  if (text !== undefined) element.textContent = text;
+  return element;
+}
+
+function createButton(text, className, onClick, ariaLabel) {
+  const button = createElement('button', className, text);
+  button.type = 'button';
+  if (ariaLabel) button.setAttribute('aria-label', ariaLabel);
+  button.addEventListener('click', onClick);
+  return button;
+}
+
+function createStatusBadge(status) {
+  return createElement('span', `status-badge status-${status.toLowerCase()}`, status);
+}
+
 function saveBookings() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
@@ -79,6 +98,19 @@ function saveBookings() {
     console.error('Unable to save lab reservations:', error);
     return false;
   }
+}
+
+function persistBookings(update) {
+  const previousBookings = bookings.map((booking) => ({ ...booking }));
+  update();
+
+  if (!saveBookings()) {
+    bookings = previousBookings;
+    return false;
+  }
+
+  renderAll();
+  return true;
 }
 
 function showMessage(message, type) {
@@ -115,9 +147,13 @@ function updateCapacityNote() {
 
 function updateDashboard() {
   document.querySelector('#count-total').textContent = bookings.length;
+  const counts = bookings.reduce((totals, booking) => {
+    totals[booking.status] += 1;
+    return totals;
+  }, Object.fromEntries(STATUSES.map((status) => [status, 0])));
+
   STATUSES.forEach((status) => {
-    const count = bookings.filter((booking) => booking.status === status).length;
-    document.querySelector(`#count-${status.toLowerCase()}`).textContent = count;
+    document.querySelector(`#count-${status.toLowerCase()}`).textContent = counts[status];
   });
 }
 
@@ -133,105 +169,86 @@ function getFilteredBookings() {
     .sort((a, b) => `${a.date}T${a.startTime}`.localeCompare(`${b.date}T${b.startTime}`));
 }
 
-function appendDetail(details, label, value) {
-  const row = document.createElement('div');
-  row.className = 'booking-detail';
-  const term = document.createElement('dt');
-  term.textContent = label;
-  const description = document.createElement('dd');
-  description.textContent = value;
-  row.append(term, description);
-  details.append(row);
+function createDetailList(entries) {
+  const details = createElement('dl', 'booking-details');
+  entries.forEach(([label, value]) => {
+    const row = createElement('div', 'booking-detail');
+    row.append(
+      createElement('dt', '', label),
+      createElement('dd', '', value)
+    );
+    details.append(row);
+  });
+  return details;
+}
+
+function createEmptyState(message) {
+  const emptyState = createElement('div', 'empty-state compact-empty-state');
+  emptyState.append(createElement('p', '', message));
+  return emptyState;
 }
 
 function createBookingCard(booking) {
-  const card = document.createElement('article');
-  card.className = `booking-item booking-${booking.status.toLowerCase()}`;
-
-  const accent = document.createElement('span');
-  accent.className = 'booking-accent';
+  const card = createElement('article', `booking-item booking-${booking.status.toLowerCase()}`);
+  const accent = createElement('span', 'booking-accent');
   accent.setAttribute('aria-hidden', 'true');
 
-  const info = document.createElement('div');
-  info.className = 'booking-info';
-  const topline = document.createElement('div');
-  topline.className = 'booking-topline';
-  const lab = document.createElement('span');
-  lab.className = 'booking-lab';
-  lab.textContent = booking.lab;
-  const date = document.createElement('span');
-  date.className = 'booking-date';
-  date.textContent = formatDate(booking.date);
+  const info = createElement('div', 'booking-info');
+  const topline = createElement('div', 'booking-topline');
+  const lab = createElement('span', 'booking-lab', booking.lab);
+  const date = createElement('span', 'booking-date', formatDate(booking.date));
   topline.append(lab, date);
 
-  const details = document.createElement('dl');
-  details.className = 'booking-details';
-  appendDetail(details, 'Reservation ID', booking.reservationId);
-  appendDetail(details, 'Teacher', booking.teacher);
-  appendDetail(details, 'Time', `${formatTime(booking.startTime)} – ${formatTime(booking.endTime)}`);
-  appendDetail(details, 'Purpose', booking.purpose);
-  appendDetail(details, 'Students', booking.studentCount ?? 'Not recorded');
-  if (booking.rejectionReason) appendDetail(details, 'Rejection reason', booking.rejectionReason);
+  const detailEntries = [
+    ['Reservation ID', booking.reservationId],
+    ['Teacher', booking.teacher],
+    ['Time', `${formatTime(booking.startTime)} – ${formatTime(booking.endTime)}`],
+    ['Purpose', booking.purpose],
+    ['Students', booking.studentCount ?? 'Not recorded']
+  ];
+  if (booking.rejectionReason) detailEntries.push(['Rejection reason', booking.rejectionReason]);
+  const details = createDetailList(detailEntries);
   info.append(topline, details);
 
-  const actions = document.createElement('div');
-  actions.className = 'booking-actions';
-  const status = document.createElement('span');
-  status.className = `status-badge status-${booking.status.toLowerCase()}`;
-  status.textContent = booking.status;
-  actions.append(status);
+  const actions = createElement('div', 'booking-actions');
+  actions.append(createStatusBadge(booking.status));
 
   if (booking.status === 'Pending') {
-    const approve = document.createElement('button');
-    approve.className = 'action-button approve-button';
-    approve.type = 'button';
-    approve.textContent = 'Approve';
-    approve.addEventListener('click', () => transitionBooking(booking.reservationId, 'Approved'));
-
-    const reject = document.createElement('button');
-    reject.className = 'action-button reject-button';
-    reject.type = 'button';
-    reject.textContent = 'Reject';
-    reject.addEventListener('click', () => {
-      rejectionFormFor = rejectionFormFor === booking.reservationId ? null : booking.reservationId;
-      renderBookings();
-    });
-    actions.append(approve, reject);
+    actions.append(
+      createButton('Approve', 'action-button approve-button', () =>
+        transitionBooking(booking.reservationId, 'Approved')
+      ),
+      createButton('Reject', 'action-button reject-button', () => {
+        rejectionFormFor = rejectionFormFor === booking.reservationId ? null : booking.reservationId;
+        renderBookings();
+      })
+    );
   }
 
   if (booking.status === 'Pending' || booking.status === 'Approved') {
-    const cancel = document.createElement('button');
-    cancel.className = 'cancel-button';
-    cancel.type = 'button';
-    cancel.textContent = 'Cancel';
-    cancel.setAttribute('aria-label', `Cancel reservation ${booking.reservationId}`);
-    cancel.addEventListener('click', () => transitionBooking(booking.reservationId, 'Cancelled'));
-    actions.append(cancel);
+    actions.append(createButton(
+      'Cancel',
+      'cancel-button',
+      () => transitionBooking(booking.reservationId, 'Cancelled'),
+      `Cancel reservation ${booking.reservationId}`
+    ));
   }
 
   card.append(accent, info, actions);
 
   if (rejectionFormFor === booking.reservationId && booking.status === 'Pending') {
-    const rejectionForm = document.createElement('form');
-    rejectionForm.className = 'rejection-form';
-    const label = document.createElement('label');
-    label.textContent = 'Reason for rejection';
-    const reason = document.createElement('textarea');
+    const rejectionForm = createElement('form', 'rejection-form');
+    const label = createElement('label', '', 'Reason for rejection');
+    const reason = createElement('textarea');
     reason.name = 'reason';
     reason.rows = 2;
     reason.maxLength = 250;
     reason.required = true;
     reason.placeholder = 'Explain why this reservation is rejected';
     label.append(reason);
-    const submit = document.createElement('button');
-    submit.className = 'action-button reject-button';
+    const submit = createElement('button', 'action-button reject-button', 'Confirm rejection');
     submit.type = 'submit';
-    submit.textContent = 'Confirm rejection';
-    const cancel = document.createElement('button');
-    cancel.className = 'cancel-button';
-    cancel.type = 'button';
-    cancel.textContent = 'Keep pending';
-    cancel.addEventListener('click', () => {
+    const cancel = createButton('Keep pending', 'cancel-button', () => {
       rejectionFormFor = null;
       renderBookings();
     });
@@ -257,12 +274,8 @@ function renderBookings() {
   bookingList.replaceChildren();
 
   if (filteredBookings.length === 0) {
-    const emptyState = document.createElement('div');
-    emptyState.className = 'empty-state compact-empty-state';
-    const message = document.createElement('p');
-    message.textContent = bookings.length ? 'No reservations match these filters.' : 'No reservations yet.';
-    emptyState.append(message);
-    bookingList.append(emptyState);
+    const message = bookings.length ? 'No reservations match these filters.' : 'No reservations yet.';
+    bookingList.append(createEmptyState(message));
     return;
   }
 
@@ -280,32 +293,19 @@ function renderSchedule() {
     .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
   if (scheduledBookings.length === 0) {
-    const emptyState = document.createElement('div');
-    emptyState.className = 'empty-state compact-empty-state';
-    const message = document.createElement('p');
-    message.textContent = 'No pending or approved reservations for this lab and date.';
-    emptyState.append(message);
-    scheduleList.append(emptyState);
+    scheduleList.append(createEmptyState('No pending or approved reservations for this lab and date.'));
     return;
   }
 
   scheduledBookings.forEach((booking) => {
-    const item = document.createElement('article');
-    item.className = 'schedule-item';
-    const time = document.createElement('strong');
-    time.className = 'schedule-time';
-    time.textContent = `${formatTime(booking.startTime)} – ${formatTime(booking.endTime)}`;
-    const details = document.createElement('div');
-    details.className = 'schedule-item-details';
-    const purpose = document.createElement('strong');
-    purpose.textContent = booking.purpose;
-    const teacher = document.createElement('span');
-    teacher.textContent = `${booking.teacher} · ${booking.studentCount ?? '—'} students · ${booking.reservationId}`;
-    details.append(purpose, teacher);
-    const status = document.createElement('span');
-    status.className = `status-badge status-${booking.status.toLowerCase()}`;
-    status.textContent = booking.status;
-    item.append(time, details, status);
+    const item = createElement('article', 'schedule-item');
+    const time = createElement('strong', 'schedule-time', `${formatTime(booking.startTime)} – ${formatTime(booking.endTime)}`);
+    const details = createElement('div', 'schedule-item-details');
+    details.append(
+      createElement('strong', '', booking.purpose),
+      createElement('span', '', `${booking.teacher} · ${booking.studentCount ?? '—'} students · ${booking.reservationId}`)
+    );
+    item.append(time, details, createStatusBadge(booking.status));
     scheduleList.append(item);
   });
 }
@@ -321,16 +321,14 @@ function transitionBooking(reservationId, newStatus, rejectionReason = '') {
   if (!booking || !STATUS_TRANSITIONS[booking.status]?.includes(newStatus)) return;
   if (newStatus === 'Rejected' && !rejectionReason.trim()) return;
 
-  const previousBookings = bookings.map((item) => ({ ...item }));
-  booking.status = newStatus;
-  if (newStatus === 'Rejected') booking.rejectionReason = rejectionReason.trim();
+  const previousRejectionFormFor = rejectionFormFor;
   rejectionFormFor = null;
-
-  if (!saveBookings()) {
-    bookings = previousBookings;
-    return;
+  if (!persistBookings(() => {
+    booking.status = newStatus;
+    if (newStatus === 'Rejected') booking.rejectionReason = rejectionReason.trim();
+  })) {
+    rejectionFormFor = previousRejectionFormFor;
   }
-  renderAll();
 }
 
 bookingForm.addEventListener('submit', (event) => {
@@ -388,13 +386,7 @@ bookingForm.addEventListener('submit', (event) => {
     return;
   }
 
-  bookings.push(booking);
-  if (!saveBookings()) {
-    bookings = bookings.filter((savedBooking) => savedBooking.reservationId !== booking.reservationId);
-    return;
-  }
-
-  renderAll();
+  if (!persistBookings(() => bookings.push(booking))) return;
   bookingForm.reset();
   updateCapacityNote();
   showMessage(`Reservation ${booking.reservationId} submitted and is pending coordinator approval.`, 'success');
