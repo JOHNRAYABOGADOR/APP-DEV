@@ -21,7 +21,7 @@
     <section class="intro" aria-labelledby="page-title">
       <p class="eyebrow">ROOM SCHEDULING</p>
       <h1 id="page-title">Computer lab reservations</h1>
-      <p class="intro-copy">Find a lab for your class and reserve a time. Your booking will be checked against existing reservations.</p>
+      <p class="intro-copy">Choose a lab, pick a time, and send your request to the coordinator. You can track every reservation from submission to approval.</p>
     </section>
 
     <section class="lab-grid" aria-label="Available computer labs">
@@ -69,7 +69,7 @@
             <p class="eyebrow">NEW RESERVATION</p>
             <h2 id="booking-title">Book a computer lab</h2>
           </div>
-          <span class="step-badge" aria-hidden="true">01</span>
+          <span class="required-badge">Required fields</span>
         </div>
 
         <form id="booking-form">
@@ -120,7 +120,7 @@
             Reserve this lab
             <span aria-hidden="true">→</span>
           </button>
-          <p class="form-note">A lab can only have one class booked at a time.</p>
+          <p class="form-note">Requests start as pending. Overlapping reservations are not allowed.</p>
         </form>
       </section>
 
@@ -171,7 +171,7 @@
           <p class="eyebrow">DAILY VIEW</p>
           <h2 id="schedule-title">Lab schedule</h2>
         </div>
-        <span class="schedule-note">Pending and approved reservations</span>
+        <span class="schedule-note"><span class="schedule-live-dot" aria-hidden="true"></span> Pending and approved reservations</span>
       </div>
       <div class="schedule-filters">
         <div class="field">

@@ -146,7 +146,7 @@ function appendDetail(details, label, value) {
 
 function createBookingCard(booking) {
   const card = document.createElement('article');
-  card.className = 'booking-item';
+  card.className = `booking-item booking-${booking.status.toLowerCase()}`;
 
   const accent = document.createElement('span');
   accent.className = 'booking-accent';
